@@ -1,17 +1,14 @@
 package model.core.medicine;
 
-import java.util.Date;
-
 /**
  * Created by Marcin on 2016-01-20.
  */
 public abstract class MedicineAbs {
     ECategory type = null;  //kategoria leku
-    String name, description;
-    Date dateExpiration, dateIntroduction;
+    String name, dateExpiration, dateIntroduction, description;
     int codeEan;
 
-    public MedicineAbs(ECategory type, String name, Date dateExpiration, Date dateIntroduction, String description, int codeEan) {
+    public MedicineAbs(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan) {
         this.type = type;
         this.name = name;
         this.dateExpiration = dateExpiration;
@@ -20,7 +17,7 @@ public abstract class MedicineAbs {
         this.codeEan = codeEan;
     }
 
-    public MedicineAbs(ECategory type, String name, Date dateIntroduction, Date dateExpiration, int codeEan) {
+    public MedicineAbs(ECategory type, String name, String dateIntroduction, String dateExpiration, int codeEan) {
         this.type = type;
         this.name = name;
         this.dateIntroduction = dateIntroduction;
@@ -35,10 +32,10 @@ public abstract class MedicineAbs {
     public String getName() {
         return name;
     }
-    public Date getDateExpiration() {
+    public String getDateExpiration() {
         return dateExpiration;
     }
-    public Date getDateIntroduction() {
+    public String getDateIntroduction() {
         return dateIntroduction;
     }
     public String getDescription() {
@@ -55,10 +52,10 @@ public abstract class MedicineAbs {
     public void setName(String name) {
         this.name = name;
     }
-    public void setDateExpiration(Date dateExpiration) {
+    public void setDateExpiration(String dateExpiration) {
         this.dateExpiration = dateExpiration;
     }
-    public void setDateIntroduction(Date dateIntroduction) {
+    public void setDateIntroduction(String dateIntroduction) {
         this.dateIntroduction = dateIntroduction;
     }
     public void setDescription(String description) {

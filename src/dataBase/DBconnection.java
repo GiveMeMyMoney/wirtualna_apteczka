@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class DBconnection {
     private static Logger logger = Logger.getLogger(DBconnection.class.getName());
-    private Connection conn = null;
+    private static Connection conn = null;
     private PreparedStatement prepStmt;
 
     private static volatile DBconnection instance = null;
@@ -22,7 +22,7 @@ public class DBconnection {
      * Singleton ktory tworzy tylko 1 instancje klasy na wszystkich watkach(synchronized).
      * 1. wzorzec
      */
-    public static DBconnection getInstance() {
+    public static Connection getInstance() throws SQLException {
         if (instance == null) {
             synchronized (DBconnection.class) {
                 if (instance == null) {
@@ -31,7 +31,11 @@ public class DBconnection {
                 }
             }
         }
-        return instance;
+        return getConn();
+    }
+
+    private static Connection getConn() {
+        return conn;
     }
 
     public DBconnection() {
@@ -39,7 +43,7 @@ public class DBconnection {
         {
             logger.info("DBconnection construct");
             Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection("jdbc:sqlite:projekt2.sqlite");
+            conn = DriverManager.getConnection("jdbc:sqlite:wirtualna_apteczka_DB.db");
             logger.info("Success, connection with DB!");
         }
         catch(Exception e) {
@@ -48,76 +52,7 @@ public class DBconnection {
         }
     }
 
-    ///INSERT methods:
-    /**
-     * metoda sluzaca do ladowania Ambulance do BD.
-     * @param //Ambulance
-     */
-    /*public void insertAmbulanceToDB(Ambulance ambulance) {
-        logger.info("putAmbulanceToDB: " + ambulance.toString());
-        try {
-            prepStmt = conn.prepareStatement("insert into karetka values (null, ?, ?, ?, ?, ?);");
-            //----//
-            int i=0;
-            prepStmt.setInt(++i, ambulance.getMarka());
-            prepStmt.setString(++i, ambulance.getName());
-            prepStmt.setString(++i, ambulance.getPrice());
-            prepStmt.setString(++i, ambulance.getAvibility());
-            prepStmt.setString(++i, ambulance.getAvibility());    //jak zdjecie?
-            //----//
-            prepStmt.execute();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
-            e.printStackTrace();
-        }
-    }*/
 
-    /**
-     * metoda sluzaca do ladowania Hospital do BD.
-     * @param Hospital
-     */
-    /*public void insertHospitalToDB(Hospital hospital) {
-        logger.info("putAmbulanceToDB: " + hospital.toString());
-        try {
-            prepStmt = conn.prepareStatement("insert into szpital values (null, ?, ?, ?);");
-            //----//
-            int i=0;
-            prepStmt.setString(++i, hospital.getName());
-            prepStmt.setInt(++i, hospital.getPrice());
-            prepStmt.setInt(++i, hospital.getAvibility());
-            //----//
-            prepStmt.execute();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
-            e.printStackTrace();
-        }
-    }*/
-
-    /**
-     * metoda sluzaca do ladowania Medicine do BD.
-     * @param
-     */
-    public void insertMedicineToDB(MedicineAbs medicine) {
-        logger.info("putAmbulanceToDB: " + medicine.toString());
-        try {
-            prepStmt = conn.prepareStatement("insert into lek values (null, ?, ?, ?, ?, ?, ?);");
-            //----//
-            int id = medicine.getType().getId();
-            int i=0;
-            prepStmt.setInt(++i, id);
-            prepStmt.setString(++i, medicine.getName());
-            prepStmt.setInt(++i, medicine.getCodeEan());
-            //prepStmt.setString(++i, medicine.getDateExpiration());
-            //prepStmt.setString(++i, medicine.getDateIntroduction());
-            prepStmt.setString(++i, medicine.getDescription());
-            //----//
-            prepStmt.execute();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
-            e.printStackTrace();
-        }
-    }
-    ///endregion
 
     ///UPDATE methods:
     /*public void updateAmbulanceToDB(Ambulance ambulance) {

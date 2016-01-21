@@ -1,10 +1,12 @@
 package view;
 
+import dataBase.DBconnection;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.Facade;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 import model.core.medicine.MedicineFactory;
@@ -37,8 +39,15 @@ public class Main extends Application {
 
         System.out.println(ft.format(date));
         System.out.println(date.toString());
-        MedicineAbs medicine = MedicineFactory.getMedicine(ECategory.DRESSING, "Zaje Bandaz", ft.format(date), dateNow, "To je zaje bandaz", 1231231231);
+        MedicineAbs medicine = MedicineFactory.getMedicine(ECategory.PAINKILLER, "Ibuprofen", ft.format(date), ft.format(dateNow), "To je zaje bandaz", 1231231231);
+
         System.out.println(medicine.toString());
+
+        Facade model = Facade.getInstance();
+        model.insertMedicineToDB(medicine);
+
+
+
 
     }
 }

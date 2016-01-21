@@ -8,7 +8,6 @@ import model.core.medicine.types.Dressing;
 import model.core.medicine.types.Other;
 import model.core.medicine.types.Painkiller;
 
-import java.util.Date;
 import java.util.logging.Logger;
 
 /**
@@ -17,7 +16,7 @@ import java.util.logging.Logger;
 public class MedicineFactory {
     private static Logger logger = Logger.getLogger(MedicineFactory.class.getName());
 
-    public static MedicineAbs getMedicine(ECategory type, String name, Date dateExpiration, Date dateIntroduction, String description, int codeEan)
+    public static MedicineAbs getMedicine(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan)
     {
         logger.info("Typ: " + type);
         if(type != null) {
@@ -36,7 +35,7 @@ public class MedicineFactory {
         return null;
     }
 
-    public static MedicineAbs getMedicine(ECategory type, String name, Date dateExpiration, Date dateIntroduction, int codeEan)
+    public static MedicineAbs getMedicine(ECategory type, String name, String dateExpiration, String dateIntroduction, int codeEan)
     {
         logger.info("Typ: " + type);
         if(type != null) {
