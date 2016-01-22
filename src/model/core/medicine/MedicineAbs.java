@@ -52,6 +52,9 @@ public abstract class MedicineAbs {
         return codeEan;
     }
     //Condition:
+    public Condition getCondition() {
+        return condition;
+    }
     public int getPackages() {
         return condition.getPackages();
     }
@@ -85,6 +88,9 @@ public abstract class MedicineAbs {
         this.codeEan = codeEan;
     }
     //Condition:
+    public void setCondition(Condition condition) {
+        this.condition = condition;
+    }
     public void setPackages(int packages) {
         condition.setPackages(packages);
     }

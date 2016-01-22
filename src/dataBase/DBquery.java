@@ -2,7 +2,6 @@ package dataBase;
 
 import model.core.ambulance.Ambulance;
 import model.core.condition.Condition;
-import model.core.hospital.Hospital;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 import model.core.medicine.MedicineFactory;
@@ -58,36 +57,12 @@ public class DBquery implements IDBquery {
     public void insertAmbulanceToDB(Ambulance ambulance) {
         logger.info("insertAmbulanceToDB: " + ambulance.toString());
         try {
-            prepStmt = connection.prepareStatement("insert into karetka values (null, ?, ?, ?, ?);");
+            prepStmt = connection.prepareStatement("insert into karetka values (null, ?, ?, ?);");
             //----//
             int i=0;
-            prepStmt.setInt(++i, ambulance.getHospitalID());
             prepStmt.setString(++i, ambulance.getRegistration());
             prepStmt.setString(++i, ambulance.getMark());
             prepStmt.setString(++i, ambulance.getModel());
-            //----//
-            prepStmt.execute();
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, e);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * metoda sluzaca do ladowania Hospital do BD.
-     * @param hospital
-     * @see Hospital
-     */
-    @Override
-    public void insertHospitalToDB(Hospital hospital) {
-        logger.info("insertHospitalToDB: " + hospital.toString());
-        try {
-            prepStmt = connection.prepareStatement("insert into szpital values (null, ?, ?, ?);");
-            //----//
-            int i=0;
-            prepStmt.setInt(++i, hospital.getResortID());
-            prepStmt.setString(++i, hospital.getName());
-            prepStmt.setInt(++i, hospital.getSize().getNr());
             //----//
             prepStmt.execute();
         } catch (SQLException e) {
@@ -139,6 +114,8 @@ public class DBquery implements IDBquery {
         try {
             //najpierw pobieram do result wszystkie rekordy o zadanym ID ambulance:
             //TODO 1 sprawdzenie czy w ogole dziala bez podzialu na kategorie
+            //TODO moze pobrac wszystkie nie zaleznie od kategori do listy a nastepnie po kliknieciu w btn
+            //TODO getByCategory.......
             selectAmbulanceMedicine = connection.prepareStatement("SELECT kl_lek_id, kl_stan_id FROM karetka_lek WHERE kl_kar_id = ?");
             selectAmbulanceMedicine.setInt(1, ambulanceID);
             resultAmbulanceMedicine = selectAmbulanceMedicine.executeQuery();
@@ -155,11 +132,12 @@ public class DBquery implements IDBquery {
                 resultMedicine = selectMedicine.executeQuery();
                 MedicineAbs medicine = MedicineFactory.getMedicine(ECategory.get(resultMedicine.getInt("lek_kt_id")), resultMedicine.getString("lek_nazwa"), resultMedicine.getString("lek_data_waznosci"),
                         resultMedicine.getString("lek_data_wprow"), resultMedicine.getString("lek_opis"), resultMedicine.getInt("lek_kod_ean"), condition);
-                if(medicine != null)
+                if (medicine != null) {
                     logger.info("Medicine: " + medicine.toString());
-                else
+                    medicineByType.add(medicine);
+                } else {
                     logger.info("Err Medicine == null");
-                medicineByType.add(medicine);
+                }
             }
             return medicineByType;
         } catch (SQLException e1) {
@@ -170,32 +148,24 @@ public class DBquery implements IDBquery {
     }
 
     @Override
-    public List<Ambulance> selectAllAmbulanceFromDB(Integer hospitalID) {
-        return null;
-    }
-
-    @Override
-    public List<Hospital> selectAllHospitalFromDB() {
-        logger.info("selectAllHospitalFromDB");
+    public List<Ambulance> selectAllAmbulanceFromDB() {
+        logger.info("selectAllAmbulanceFromDB()");
         ResultSet result = null;
-        List<Hospital> vehiclesByType = new ArrayList<>();
+        List<Ambulance> ambulances = new ArrayList<>();
         try {
-            //najpierw pobieram do result wszystkie rekordy o zadanym type TYPE:
-            prepStmt = connection.prepareStatement("SELECT * FROM szpital ORDER BY ");
-            prepStmt.setString(1, type.toLowerCase());
+            prepStmt = connection.prepareStatement("SELECT * FROM karetka ORDER BY kar_rejestracja");
             result = prepStmt.executeQuery();
-            VehicleAbs vehicle;
             //pozniej za pomoca Factory tworze konkretny typ(nie musze wiedziec jaki) pojazdu i dopisuje do ArrayListy
             while (result.next()) {
-                vehicle = VehicleFactory.getVehicle(result.getInt("veh_id"), result.getString("veh_marka"), result.getString("veh_name"),
-                        result.getString("veh_price"), result.getBoolean("veh_avibility"), result.getString("veh_type"));
-                if(vehicle != null)
-                    logger.info("Vehicle: " + vehicle.toString());
-                else
+                Ambulance ambulance = new Ambulance(result.getString("kar_rejestracja"), result.getString("kar_marka"), result.getString("kar_model"));
+                if (ambulance != null) {
+                    logger.info("Vehicle: " + ambulance.toString());
+                    ambulances.add(ambulance);
+                } else {
                     logger.info("Err Vehicle = null");
-                vehiclesByType.add(vehicle);
+                }
             }
-            return vehiclesByType;
+            return ambulances;
         } catch (SQLException e1) {
             JOptionPane.showMessageDialog(null, e1);
             e1.printStackTrace();

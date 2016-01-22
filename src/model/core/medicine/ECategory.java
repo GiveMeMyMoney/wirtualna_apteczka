@@ -1,8 +1,6 @@
 package model.core.medicine;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Marcin on 2016-01-20.
@@ -17,6 +15,14 @@ public enum ECategory {
         for (ECategory c : EnumSet.allOf(ECategory.class)) {
             lookup.put(c.getId(), c);
         }
+    }
+
+    public static List<ECategory> getAllCategories() {
+        List<ECategory> categories = new ArrayList<>();
+        for (ECategory c : EnumSet.allOf(ECategory.class)) {
+            categories.add(c);
+        }
+        return categories;
     }
 
     private int id;

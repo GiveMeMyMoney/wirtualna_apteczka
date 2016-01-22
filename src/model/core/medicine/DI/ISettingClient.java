@@ -7,10 +7,8 @@ import model.core.medicine.ECategory;
  */
 public interface ISettingClient {
     void setType(ECategory type);
-    void setHospitalID(Integer hosID);
     void setAmbulanceID(Integer ambID);
 
     ECategory getType();
-    Integer getHospitalID();
     Integer getAmbulanceID();
 }

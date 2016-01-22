@@ -8,11 +8,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.Facade;
 import model.core.ambulance.Ambulance;
-import model.core.hospital.EHospitalSize;
-import model.core.hospital.Hospital;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
-import model.core.medicine.MedicineFactory;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
@@ -26,14 +23,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setTitle("Wirtualna Apteczka");
+        primaryStage.setScene(new Scene(root, 1092, 678));
         primaryStage.show();
     }
 
 
     public static void main(String[] args) {
-        //launch(args);
+        launch(args);
         /*Date dateNow = new Date();
         SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
 
@@ -50,25 +47,25 @@ public class Main extends Application {
 
         Ambulance ambulance = new Ambulance(1, "KTT 60SM", "A4", "Audi");*/
 
-        Facade model = Facade.getInstance();
+        //Facade model = Facade.getInstance();
         //model.insertAmbulanceToDB(ambulance);
 
-        Hospital hospital = new Hospital(1, "Szpital œw. Kostka", EHospitalSize.BIG);
-
-        System.out.println(hospital.toString());
-
         //model.insertHospitalToDB(hospital);
-        model.setAmbulanceID(2);
-        model.setType(ECategory.DRESSING);
+        //model.setAmbulanceID(1);
+        //model.setType(ECategory.DRESSING);
 
-        List<MedicineAbs> medicines = new ArrayList<>();
+        /*List<MedicineAbs> medicines = new ArrayList<>();
         medicines = model.selectAllMedicineFromDB();
 
-        System.out.println(medicines.get(0).toString());
+        //System.out.println(medicines.get(0).toString());
         JOptionPane.showMessageDialog(null, medicines.toString());
 
+        List<Ambulance> ambulances = new ArrayList<>();
+        ambulances = model.selectAllAmbulanceFromDB();
 
+        System.out.println(ambulances.toString());*/
 
+        //System.out.println(model.getAllCategories());
 
 
     }

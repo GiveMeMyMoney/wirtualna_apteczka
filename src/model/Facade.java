@@ -3,7 +3,6 @@ package model;
 import dataBase.DBquery;
 import dataBase.IDBquery;
 import model.core.ambulance.Ambulance;
-import model.core.hospital.Hospital;
 import model.core.medicine.DI.SettingClient;
 import model.core.medicine.DI.ISettingClient;
 import model.core.medicine.ECategory;
@@ -51,11 +50,6 @@ public class Facade implements IFacade {
 
     ///DI
     @Override
-    public void setHospitalID(Integer hosID) {
-        settings.setHospitalID(hosID);
-    }
-
-    @Override
     public void setAmbulanceID(Integer ambID) {
         settings.setAmbulanceID(ambID);
     }
@@ -82,13 +76,6 @@ public class Facade implements IFacade {
             dbQuery.insertAmbulanceToDB(ambulance);
         }
     }
-
-    @Override
-    public void insertHospitalToDB(Hospital hospital) {
-        if (hospital != null) {
-            dbQuery.insertHospitalToDB(hospital);
-        }
-    }
     ///endregion
 
     ///SELECT from DB
@@ -97,6 +84,16 @@ public class Facade implements IFacade {
     public List<MedicineAbs> selectAllMedicineFromDB() {
         return dbQuery.selectAllMedicineFromDB(settings.getType(), settings.getAmbulanceID());
     }
+
+    @Override
+    public List<Ambulance> selectAllAmbulanceFromDB() {
+        return dbQuery.selectAllAmbulanceFromDB();
+    }
+
+    public List<ECategory> getAllCategories() {
+        return ECategory.getAllCategories();
+    }
+
 
 
     ///endregion
