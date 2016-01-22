@@ -1,22 +1,11 @@
 package view;
 
-import dataBase.DBconnection;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import model.Facade;
-import model.core.ambulance.Ambulance;
-import model.core.medicine.ECategory;
-import model.core.medicine.MedicineAbs;
-
-import javax.swing.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+//
 
 public class Main extends Application {
 
