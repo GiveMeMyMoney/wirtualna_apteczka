@@ -1,5 +1,7 @@
 package model.core.medicine;
 
+import model.core.condition.Condition;
+
 /**
  * Created by Marcin on 2016-01-20.
  */
@@ -7,23 +9,28 @@ public abstract class MedicineAbs {
     ECategory type = null;  //kategoria leku
     String name, dateExpiration, dateIntroduction, description;
     int codeEan;
+    Condition condition = null;
 
-    public MedicineAbs(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan) {
+    public MedicineAbs(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan, Condition condition) {
         this.type = type;
         this.name = name;
         this.dateExpiration = dateExpiration;
         this.dateIntroduction = dateIntroduction;
         this.description = description;
         this.codeEan = codeEan;
+        this.condition = condition;
     }
 
-    public MedicineAbs(ECategory type, String name, String dateIntroduction, String dateExpiration, int codeEan) {
+    public MedicineAbs(ECategory type, String name, String dateIntroduction, String dateExpiration, int codeEan, Condition condition) {
         this.type = type;
         this.name = name;
         this.dateIntroduction = dateIntroduction;
         this.dateExpiration = dateExpiration;
         this.codeEan = codeEan;
+        this.condition = condition;
     }
+
+    //METHODs:
 
     //GETTERs:
     public ECategory getType() {
@@ -43,6 +50,19 @@ public abstract class MedicineAbs {
     }
     public int getCodeEan() {
         return codeEan;
+    }
+    //Condition:
+    public int getPackages() {
+        return condition.getPackages();
+    }
+    public boolean isEMPTY() {
+        return condition.isEMPTY();
+    }
+    public int getSachets() {
+        return condition.getSachets();
+    }
+    public int getPills() {
+        return condition.getPills();
     }
 
     //SETTERs:
@@ -64,8 +84,17 @@ public abstract class MedicineAbs {
     public void setCodeEan(int codeEan) {
         this.codeEan = codeEan;
     }
+    //Condition:
+    public void setPackages(int packages) {
+        condition.setPackages(packages);
+    }
+    public void setPills(int pills) {
+        condition.setPills(pills);
+    }
+    public void setSachets(int sachets) {
+        condition.setSachets(sachets);
+    }
 
-    //METHODs:
     @Override
     public String toString() {
         return "MedicineAbs{" +
@@ -73,7 +102,11 @@ public abstract class MedicineAbs {
                 ", name='" + name + '\'' +
                 ", dateExpiration='" + dateExpiration + '\'' +
                 ", dateIntroduction='" + dateIntroduction + '\'' +
+                ", description='" + description + '\'' +
                 ", codeEan=" + codeEan +
+                ", condition(packages)=" + getPackages() +
+                ", condition(sachets)=" + getSachets() +
+                ", condition(pills)=" + getPills() +
                 '}';
     }
 }

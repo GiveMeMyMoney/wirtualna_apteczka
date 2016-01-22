@@ -10,10 +10,8 @@
       <column name="kar_rejestracja" sqlType="TEXT (7)" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
       <column name="kar_marka" sqlType="TEXT (50)" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
       <column name="kar_model" sqlType="TEXT (50)" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
-      <column name="kar_zdjecie" sqlType="BLOB" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
       <primary-key columns="kar_id"/>
       <foreign-key name="#FAKE_karetka_1" columns="kar_szp_id" ref-table="szpital" ref-schema="" ref-catalog="" ref-columns="szp_id" update-rule="0" delete-rule="0" deferrability="1"/>
-      <exported-key name="#FAKE_karetka_lek_3" table="karetka_lek" schema="" catalog="" columns="kl_kar_id"/>
     </table>
     <table name="karetka_lek" schema="" catalog="" type="TABLE">
       <column name="kl_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
@@ -22,13 +20,14 @@
       <column name="kl_stan_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="true" jdbcType="4"/>
       <primary-key columns="kl_id"/>
       <foreign-key name="#FAKE_karetka_lek_1" columns="kl_stan_id" ref-table="stan" ref-schema="" ref-catalog="" ref-columns="stan_id" update-rule="0" delete-rule="0" deferrability="1"/>
-      <foreign-key name="#FAKE_karetka_lek_2" columns="kl_lek_id" ref-table="lek" ref-schema="" ref-catalog="" ref-columns="lek_id" update-rule="0" delete-rule="0" deferrability="1"/>
-      <foreign-key name="#FAKE_karetka_lek_3" columns="kl_kar_id" ref-table="karetka" ref-schema="" ref-catalog="" ref-columns="kar_id" update-rule="0" delete-rule="0" deferrability="1"/>
+      <foreign-key name="#FAKE_karetka_lek_2" columns="kl_lek_id" ref-table="kategoria_leku" ref-schema="" ref-catalog="" ref-columns="kl_id" update-rule="0" delete-rule="0" deferrability="1"/>
+      <foreign-key name="#FAKE_karetka_lek_3" columns="kl_kar_id" ref-table="szpital" ref-schema="" ref-catalog="" ref-columns="szp_id" update-rule="0" delete-rule="0" deferrability="1"/>
     </table>
     <table name="kategoria_leku" schema="" catalog="" type="TABLE">
       <column name="kl_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="kt_typ" sqlType="TEXT (100)" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
       <primary-key columns="kl_id"/>
+      <exported-key name="#FAKE_karetka_lek_2" table="karetka_lek" schema="" catalog="" columns="kl_lek_id"/>
       <exported-key name="#FAKE_lek_1" table="lek" schema="" catalog="" columns="lek_kt_id"/>
     </table>
     <table name="lek" schema="" catalog="" type="TABLE">
@@ -41,7 +40,6 @@
       <column name="lek_opis" sqlType="TEXT" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
       <primary-key columns="lek_id"/>
       <foreign-key name="#FAKE_lek_1" columns="lek_kt_id" ref-table="kategoria_leku" ref-schema="" ref-catalog="" ref-columns="kl_id" update-rule="0" delete-rule="0" deferrability="1"/>
-      <exported-key name="#FAKE_karetka_lek_2" table="karetka_lek" schema="" catalog="" columns="kl_lek_id"/>
     </table>
     <table name="miejscowosc" schema="" catalog="" type="TABLE">
       <column name="miej_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
@@ -68,12 +66,13 @@
     </table>
     <table name="szpital" schema="" catalog="" type="TABLE">
       <column name="szp_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
+      <column name="szp_miej_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="szp_nazwa" sqlType="TEXT (100)" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
       <column name="szp_wielkosc" sqlType="INTEGER (1)" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
-      <column name="szp_miej_id" sqlType="INTEGER" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <primary-key columns="szp_id"/>
       <foreign-key name="#FAKE_szpital_1" columns="szp_miej_id" ref-table="miejscowosc" ref-schema="" ref-catalog="" ref-columns="miej_id" update-rule="0" delete-rule="0" deferrability="1"/>
       <exported-key name="#FAKE_karetka_1" table="karetka" schema="" catalog="" columns="kar_szp_id"/>
+      <exported-key name="#FAKE_karetka_lek_3" table="karetka_lek" schema="" catalog="" columns="kl_kar_id"/>
     </table>
   </data-source>
 </component>

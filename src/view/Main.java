@@ -7,14 +7,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.Facade;
+import model.core.ambulance.Ambulance;
+import model.core.hospital.EHospitalSize;
+import model.core.hospital.Hospital;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 import model.core.medicine.MedicineFactory;
 
 import javax.swing.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Main extends Application {
 
@@ -29,7 +34,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         //launch(args);
-        Date dateNow = new Date();
+        /*Date dateNow = new Date();
         SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
 
         Calendar c = Calendar.getInstance();
@@ -43,8 +48,25 @@ public class Main extends Application {
 
         System.out.println(medicine.toString());
 
+        Ambulance ambulance = new Ambulance(1, "KTT 60SM", "A4", "Audi");*/
+
         Facade model = Facade.getInstance();
-        model.insertMedicineToDB(medicine);
+        //model.insertAmbulanceToDB(ambulance);
+
+        Hospital hospital = new Hospital(1, "Szpital œw. Kostka", EHospitalSize.BIG);
+
+        System.out.println(hospital.toString());
+
+        //model.insertHospitalToDB(hospital);
+        model.setAmbulanceID(2);
+        model.setType(ECategory.DRESSING);
+
+        List<MedicineAbs> medicines = new ArrayList<>();
+        medicines = model.selectAllMedicineFromDB();
+
+        System.out.println(medicines.get(0).toString());
+        JOptionPane.showMessageDialog(null, medicines.toString());
+
 
 
 

@@ -2,9 +2,16 @@ package model;
 
 import dataBase.DBquery;
 import dataBase.IDBquery;
+import model.core.ambulance.Ambulance;
+import model.core.hospital.Hospital;
+import model.core.medicine.DI.SettingClient;
+import model.core.medicine.DI.ISettingClient;
+import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -14,18 +21,19 @@ import java.util.logging.Logger;
 /**
  * 3 wzorzec: Fasada (Facade)
  */
-public class Facade implements IDBquery {
+public class Facade implements IFacade {
     private static Logger logger = Logger.getLogger(Facade.class.getName());
     //ArrayList<Contact> contacts = new ArrayList<>();
 
     private static volatile Facade instance = null;
     private static DBquery dbQuery = null;
+    private ISettingClient settings = new SettingClient();
 
     public static Facade getInstance() {
         if (instance == null) {
             synchronized (Facade.class) {
                 if (instance == null) {
-                    logger.info("Tworze instancje KsiazkiTelefonicznej");
+                    logger.info("Tworze instancje Facade");
                     instance = new Facade();
                     try {
                         dbQuery = DBquery.getInstance();
@@ -41,6 +49,25 @@ public class Facade implements IDBquery {
     private Facade() {
     }
 
+    ///DI
+    @Override
+    public void setHospitalID(Integer hosID) {
+        settings.setHospitalID(hosID);
+    }
+
+    @Override
+    public void setAmbulanceID(Integer ambID) {
+        settings.setAmbulanceID(ambID);
+    }
+
+    @Override
+    public void setType(ECategory type) {
+        settings.setType(type);
+    }
+
+    ///endregion
+
+
     ///INSERT to DB
     @Override
     public void insertMedicineToDB(MedicineAbs medicine) {
@@ -49,7 +76,31 @@ public class Facade implements IDBquery {
         }
     }
 
+    @Override
+    public void insertAmbulanceToDB(Ambulance ambulance) {
+        if (ambulance != null) {
+            dbQuery.insertAmbulanceToDB(ambulance);
+        }
+    }
+
+    @Override
+    public void insertHospitalToDB(Hospital hospital) {
+        if (hospital != null) {
+            dbQuery.insertHospitalToDB(hospital);
+        }
+    }
     ///endregion
+
+    ///SELECT from DB
+
+    @Override
+    public List<MedicineAbs> selectAllMedicineFromDB() {
+        return dbQuery.selectAllMedicineFromDB(settings.getType(), settings.getAmbulanceID());
+    }
+
+
+    ///endregion
+
 
 
 
