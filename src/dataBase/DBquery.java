@@ -102,12 +102,12 @@ public class DBquery implements IDBquery {
     ///SELECT methods:
     /**
      * Metoda zwracajaca wszystkie leki z danej kategorii i o danym ID ambulansu (TRANZAKCJA)
-     * @param type - typ ustawiony przez SettingClient z ECategory.
+     * @param ambulanceID
      * @return ArrayList<MedicineAbs>
      */
     @Override
-    public List<MedicineAbs> selectAllMedicineFromDB(ECategory type, Integer ambulanceID) {
-        logger.info("Ambulance ID: " + ambulanceID + ", Type: " + type);
+    public List<MedicineAbs> selectAllMedicineFromDB(Integer ambulanceID) {
+        logger.info("Ambulance ID: " + ambulanceID);
         ResultSet resultAmbulanceMedicine = null, resultCondition = null, resultMedicine = null;
         List<MedicineAbs> medicineByType = new ArrayList<>();
         PreparedStatement selectAmbulanceMedicine = null, selectCondition = null, selectMedicine = null;

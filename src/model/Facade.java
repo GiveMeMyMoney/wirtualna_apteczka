@@ -1,10 +1,10 @@
 package model;
 
 import dataBase.DBquery;
-import dataBase.IDBquery;
 import model.core.ambulance.Ambulance;
-import model.core.medicine.DI.SettingClient;
+import model.core.condition.Condition;
 import model.core.medicine.DI.ISettingClient;
+import model.core.medicine.DI.SettingClient;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 
@@ -28,6 +28,9 @@ public class Facade implements IFacade {
     private static DBquery dbQuery = null;
     private ISettingClient settings = new SettingClient();
 
+    List<MedicineAbs> medicines = new ArrayList<>();
+    List<Condition> conditions = new ArrayList<>();
+
     public static Facade getInstance() {
         if (instance == null) {
             synchronized (Facade.class) {
@@ -46,7 +49,14 @@ public class Facade implements IFacade {
     }
 
     private Facade() {
+
     }
+
+    //priavte methods:
+
+
+    //endregion
+
 
     ///DI
     @Override
@@ -79,10 +89,8 @@ public class Facade implements IFacade {
     ///endregion
 
     ///SELECT from DB
-
-    @Override
-    public List<MedicineAbs> selectAllMedicineFromDB() {
-        return dbQuery.selectAllMedicineFromDB(settings.getType(), settings.getAmbulanceID());
+    public void initAllMedicine() {
+        medicines = dbQuery.selectAllMedicineFromDB(settings.getAmbulanceID());
     }
 
     @Override
@@ -94,9 +102,24 @@ public class Facade implements IFacade {
         return ECategory.getAllCategories();
     }
 
-
-
     ///endregion
+    public List<MedicineAbs> getAllMedicineByType() {
+        List<MedicineAbs> medicinesWithType = new ArrayList<>();
+        conditions.clear();
+        for (MedicineAbs medicine : medicines) {
+            if (medicine.getType().equals(settings.getType())) {
+                medicinesWithType.add(medicine);
+                conditions.add(medicine.getCondition());
+            }
+        }
+        return medicinesWithType;
+    }
+
+    public List<Condition> getAllConditionByType() {
+        return conditions;
+    }
+
+
 
 
 

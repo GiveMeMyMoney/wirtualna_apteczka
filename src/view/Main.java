@@ -2,18 +2,31 @@ package view;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 //
 
 public class Main extends Application {
+    private final static int HEIGHT = 678;
+    private final static int WIDTH = 1092;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        FXMLLoader myLoader = new FXMLLoader(getClass().getResource("medicine.fxml"));
+        Pane myPane = (Pane) myLoader.load();
+        //AmbulanceController controller = (AmbulanceController) myLoader.getController();
+
+        //controller.setPrevStage(primaryStage);
+
+        //Parent rootAmbulance = FXMLLoader.load(getClass().getResource("ambulance.fxml"));
+        //Parent rootMedicine = FXMLLoader.load(getClass().getResource("medicine.fxml"));
+
+        Scene scene = new Scene(myPane, WIDTH, HEIGHT);
+        //Scene scene2 = new Scene(rootMedicine, WIDTH, HEIGHT);
+
         primaryStage.setTitle("Wirtualna Apteczka");
-        primaryStage.setScene(new Scene(root, 1092, 678));
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 

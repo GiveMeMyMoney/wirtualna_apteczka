@@ -1,10 +1,8 @@
 package dataBase;
 
 import model.core.ambulance.Ambulance;
-import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +14,7 @@ public interface IDBquery {
     void insertAmbulanceToDB(Ambulance ambulance);
 
     ///SELECT
-    List<MedicineAbs> selectAllMedicineFromDB(ECategory type, Integer ambulanceID);
+    List<MedicineAbs> selectAllMedicineFromDB(Integer ambulanceID);
     List<Ambulance> selectAllAmbulanceFromDB();
 
 }

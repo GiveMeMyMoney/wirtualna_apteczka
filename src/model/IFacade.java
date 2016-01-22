@@ -1,12 +1,11 @@
 package model;
 
-import model.core.ambulance.Ambulance;
-import model.core.medicine.ECategory;
-import model.core.medicine.DI.ISettingClient;
-import model.core.medicine.MedicineAbs;
 import dataBase.IDBquery;
+import model.core.ambulance.Ambulance;
+import model.core.medicine.DI.ISettingClient;
+import model.core.medicine.ECategory;
+import model.core.medicine.MedicineAbs;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +26,6 @@ public interface IFacade {
     void insertAmbulanceToDB(Ambulance ambulance);
 
     ///SELECT
-    List<MedicineAbs> selectAllMedicineFromDB();
+    //List<MedicineAbs> selectAllMedicineFromDB();
     List<Ambulance> selectAllAmbulanceFromDB();
 }
