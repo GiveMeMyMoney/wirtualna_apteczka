@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 /**
  * 3 wzorzec: Fasada (Facade)
  */
-public class Facade implements IFacade {
+public class Facade implements IFacade {    //TODO poprawiæ interface!
     private static Logger logger = Logger.getLogger(Facade.class.getName());
     //ArrayList<Contact> contacts = new ArrayList<>();
 
@@ -29,7 +29,6 @@ public class Facade implements IFacade {
     private ISettingClient settings = new SettingClient();
 
     List<MedicineAbs> medicines = new ArrayList<>();
-    List<Condition> conditions = new ArrayList<>();
 
     public static Facade getInstance() {
         if (instance == null) {
@@ -76,7 +75,9 @@ public class Facade implements IFacade {
     @Override
     public void insertMedicineToDB(MedicineAbs medicine) {
         if (medicine != null) {
-            dbQuery.insertMedicineToDB(medicine);
+            if (dbQuery.insertMedicineToDB(medicine, settings.getAmbulanceID())) {
+                medicines.add(medicine);    //TODO do przerobienia if(true) justDoIT!
+            }
         }
     }
 
@@ -103,21 +104,41 @@ public class Facade implements IFacade {
     }
 
     ///endregion
+
+    ///DELETE from DB
+
+    @Override
+    public void deleteMedicineFromDB(MedicineAbs medicine) {
+        if (medicine != null) {
+            if (dbQuery.deleteMedicineFromDB(medicine)) {
+                medicines.remove(medicine);
+            }
+
+        }
+    }
+    ///endregion
+
+    ///medicines
     public List<MedicineAbs> getAllMedicineByType() {
         List<MedicineAbs> medicinesWithType = new ArrayList<>();
-        conditions.clear();
         for (MedicineAbs medicine : medicines) {
             if (medicine.getType().equals(settings.getType())) {
                 medicinesWithType.add(medicine);
-                conditions.add(medicine.getCondition());
             }
         }
         return medicinesWithType;
     }
 
-    public List<Condition> getAllConditionByType() {
-        return conditions;
+    public List<MedicineAbs> updateTempMedicinesArray(String name, Condition condition) {
+        List<MedicineAbs> medicinesWithType = new ArrayList<>();
+        for (MedicineAbs medicine : medicines) {
+            if (medicine.getType().equals(settings.getType())) {
+                medicinesWithType.add(medicine);
+            }
+        }
+        return medicinesWithType;
     }
+    ///endregion
 
 
 

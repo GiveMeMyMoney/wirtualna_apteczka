@@ -28,4 +28,7 @@ public interface IFacade {
     ///SELECT
     //List<MedicineAbs> selectAllMedicineFromDB();
     List<Ambulance> selectAllAmbulanceFromDB();
+
+    ///DELETE
+    void deleteMedicineFromDB(MedicineAbs medicine);
 }

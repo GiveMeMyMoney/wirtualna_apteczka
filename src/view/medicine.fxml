@@ -1,38 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.*?>
+<?import java.lang.String?>
 <AnchorPane prefHeight="678.0" prefWidth="1092.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="controller.MedicineController">
   <children>
     <AnchorPane prefHeight="318.0" prefWidth="265.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-        <Text fill="BLACK" layoutX="535.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="First Aid Kit">
+        <Text fill="BLACK" layoutX="477.0" layoutY="34.0" strokeType="OUTSIDE" strokeWidth="0.0" text="First Aid Kit">
           <font>
             <Font name="System Bold" size="25.0" />
           </font>
         </Text>
-        <TableView id="tableView" fx:id="tv_medicine" prefHeight="517.0" prefWidth="487.0" AnchorPane.bottomAnchor="101.0" AnchorPane.rightAnchor="592.0">
+        <TableView id="tableView" fx:id="tv_medicine" prefHeight="497.0" prefWidth="658.0" AnchorPane.bottomAnchor="121.0" AnchorPane.rightAnchor="412.0">
           <columns>
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="121.0" text="Name" fx:id="col_name" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="83.0" text="EAN" fx:id="col_EAN" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="87.0" text="Introduction" fx:id="col_date_introduction" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="88.0" text="Expiration" fx:id="col_date_expiration" />
-            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="88.0" text="Packages" fx:id="col_packages_2" />
-          </columns>
-        </TableView>
-        <Button layoutX="866.0" layoutY="91.0" mnemonicParsing="false" onMouseClicked="#btnShowDressing" text="Dressing" />
-        <Button layoutX="866.0" layoutY="141.0" mnemonicParsing="false" onMouseClicked="#btnShowPainkiller" text="Painkiller" />
-        <Button layoutX="866.0" layoutY="193.0" mnemonicParsing="false" onMouseClicked="#btnShowOthers" text="Others" />
-        <TableView id="tableView" fx:id="tv_condition" layoutX="561.0" layoutY="68.0" prefHeight="517.0" prefWidth="277.79296875">
-          <columns>
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="88.0" text="Packages" fx:id="col_packages" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="97.0" text="Sachets" fx:id="col_sachets" />
             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="90.0" text="Pills" fx:id="col_pills" />
           </columns>
         </TableView>
-        <Button layoutX="13.0" layoutY="592.0" mnemonicParsing="false" prefHeight="72.0" text="Wstecz" />
+        <Button layoutX="866.0" layoutY="91.0" mnemonicParsing="false" onMouseClicked="#btnShowDressing" text="Dressing" />
+        <Button layoutX="866.0" layoutY="141.0" mnemonicParsing="false" onMouseClicked="#btnShowPainkiller" text="Painkiller" />
+        <Button layoutX="866.0" layoutY="193.0" mnemonicParsing="false" onMouseClicked="#btnShowOthers" text="Others" />
+        <Button fx:id="btn_update" layoutX="695.0" layoutY="87.0" mnemonicParsing="false" onMouseClicked="#btnUpdate" prefHeight="65.0" prefWidth="77.0" text="Update" />
+        <Text layoutX="30.0" layoutY="583.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Add" />
+        <ChoiceBox id="SpinnerType" fx:id="cb_type" layoutX="94.0" layoutY="600.0" prefWidth="117.0">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="Item 1" />
+              <String fx:value="Item 2" />
+              <String fx:value="Item 3" />
+            </FXCollections>
+          </items>
+        </ChoiceBox>
+        <Text layoutX="41.0" layoutY="611.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="Type:" />
+        <Text layoutX="41.0" layoutY="650.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="Name:" />
+        <Text layoutX="260.0" layoutY="611.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="EAN code:" />
+        <Text layoutX="270.0" layoutY="650.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="Expiration date:" />
+        <Text layoutX="512.0" layoutY="611.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="Packages:" />
+        <Text layoutX="522.0" layoutY="620.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
+        <Text layoutX="516.0" layoutY="640.0" scaleX="1.0" scaleY="1.1953010279001468" strokeType="OUTSIDE" strokeWidth="0.0" text="Sachets:" />
+        <Text layoutX="813.0" layoutY="611.0" scaleX="1.0" scaleY="1.195299375015759" strokeType="OUTSIDE" strokeWidth="0.0" text="Pills:" />
+        <TextField fx:id="tf_name" layoutX="94.0" layoutY="633.0" prefWidth="137.79296875" />
+        <TextField fx:id="tf_ean" layoutX="339.0" layoutY="596.0" prefWidth="137.79296875" />
+        <TextField fx:id="tf_exp_date" layoutX="364.0" layoutY="634.0" prefWidth="137.79296875" />
+        <TextField fx:id="tf_packages" layoutX="585.0" layoutY="595.0" prefWidth="137.79296875" />
+        <TextField fx:id="tf_sachets" layoutX="585.0" layoutY="629.0" prefWidth="137.79296875" />
+        <TextField fx:id="tf_pills" layoutX="853.0" layoutY="593.0" prefWidth="137.79296875" />
+        <Button layoutX="749.0" layoutY="523.0" mnemonicParsing="false" onMouseClicked="#btnAddMedicine" prefHeight="47.0" prefWidth="96.0" text="Add" />
+        <Button fx:id="btn_delete" layoutX="680.0" layoutY="416.0" mnemonicParsing="false" onMouseClicked="#btnDeleteMedicine" prefHeight="54.0" prefWidth="165.0" text="Delete" />
+        <Button fx:id="btn_cancel" layoutX="695.0" layoutY="171.0" mnemonicParsing="false" onMouseClicked="#btnCancel" prefHeight="65.0" prefWidth="77.0" text="Cancel" />
       </children>
     </AnchorPane>
   </children>

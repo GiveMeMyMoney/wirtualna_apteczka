@@ -10,11 +10,15 @@ import java.util.List;
  */
 public interface IDBquery {
     ///INSERT
-    void insertMedicineToDB(MedicineAbs medicine);
+    boolean insertMedicineToDB(MedicineAbs medicine, Integer ambulanceID);
     void insertAmbulanceToDB(Ambulance ambulance);
 
     ///SELECT
     List<MedicineAbs> selectAllMedicineFromDB(Integer ambulanceID);
     List<Ambulance> selectAllAmbulanceFromDB();
+
+    ///DELETE
+    boolean deleteMedicineFromDB(MedicineAbs medicine);
+
 
 }
