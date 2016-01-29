@@ -13,7 +13,7 @@ import java.util.List;
 public interface IDBquery {
     ///INSERT
     Pair<Integer, Integer> insertMedicineToDB(MedicineAbs medicine, Integer ambulanceID);
-    void insertAmbulanceToDB(Ambulance ambulance);
+    Integer insertAmbulanceToDB(Ambulance ambulance);
 
     ///SELECT
     List<MedicineAbs> selectAllMedicineFromDB(Integer ambulanceID);

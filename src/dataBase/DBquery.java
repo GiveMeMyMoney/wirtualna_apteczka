@@ -52,10 +52,11 @@ public class DBquery implements IDBquery {
      * @see Ambulance
      */
     @Override
-    public void insertAmbulanceToDB(Ambulance ambulance) {
+    public Integer insertAmbulanceToDB(Ambulance ambulance) {
         logger.info("insertAmbulanceToDB: " + ambulance.toString());
+        ResultSet rsAmbulanceID = null;
         try {
-            prepStmt = connection.prepareStatement("insert into karetka values (null, ?, ?, ?);");
+            prepStmt = connection.prepareStatement("insert into karetka values (null, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
             //----//
             int i=0;
             prepStmt.setString(++i, ambulance.getRegistration());
@@ -63,9 +64,12 @@ public class DBquery implements IDBquery {
             prepStmt.setString(++i, ambulance.getModel());
             //----//
             prepStmt.execute();
+            rsAmbulanceID = prepStmt.getGeneratedKeys();
+            return rsAmbulanceID.getInt(1);
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e);
             e.printStackTrace();
+            return null;
         }
     }
 

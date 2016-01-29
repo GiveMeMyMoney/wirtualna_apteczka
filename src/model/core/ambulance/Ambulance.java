@@ -3,9 +3,15 @@ package model.core.ambulance;
 /**
  * Created by Marcin on 2016-01-20.
  */
-public class Ambulance {
+public class Ambulance implements Comparable<Ambulance> {
     Integer ambID;
     String registration, mark, model;
+
+    public Ambulance(String registration, String mark, String model) {
+        this.registration = registration;
+        this.mark = mark;
+        this.model = model;
+    }
 
     public Ambulance(Integer ambID, String registration, String model, String mark) {
         this.ambID = ambID;
@@ -47,5 +53,10 @@ public class Ambulance {
     @Override
     public String toString() {
         return registration;
+    }
+
+    @Override
+    public int compareTo(Ambulance a) {
+        return a.getRegistration().compareTo(this.registration) * -1;
     }
 }

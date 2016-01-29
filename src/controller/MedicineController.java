@@ -1,5 +1,7 @@
 package controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,7 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import model.Facade;
 import model.core.ambulance.Ambulance;
@@ -31,7 +32,7 @@ public class MedicineController implements Initializable {
 
     List<MedicineAbs> medicines = new ArrayList<>();
 
-    ObservableList<Ambulance> obList2;
+    //ObservableList<Ambulance> obList2;
     List<Ambulance> listAmbulance;
 
     ///FXML variable region
@@ -47,6 +48,7 @@ public class MedicineController implements Initializable {
     @FXML ChoiceBox<ECategory> cb_type;
     @FXML ChoiceBox<Ambulance> cb_ambulance;
     @FXML TextField tf_name, tf_ean, tf_exp_date, tf_packages, tf_sachets, tf_pills;
+    @FXML TextField tf_registration, tf_mark, tf_model;
     @FXML Button btn_update, btn_cancel, btn_delete;    //TODO btn_delete zrobi� pewne "podswietlanie" gdy jest jaka� opcja wybrana na tableView...
     //endregion
 
@@ -179,30 +181,25 @@ public class MedicineController implements Initializable {
     }
 
     private void setAmbulanceCB() {
+        cb_ambulance.getItems().clear();
         listAmbulance = model.getAllAmbulances();
         if (listAmbulance != null && listAmbulance.size() > 0) {
-            obList2 = FXCollections.observableList(listAmbulance);
-            //cb_ambulance.getItems().clear();
-            cb_ambulance.setItems(obList2);
+            //obList2 = FXCollections.observableList(listAmbulance);
+            cb_ambulance.getItems().addAll(listAmbulance);
+            //cb_ambulance.setItems(obList2);
             cb_ambulance.getSelectionModel().selectFirst();
-            cb_ambulance.setVisible(false);
-            cb_ambulance.setVisible(true);
         }
-        StringConverter<Ambulance> converter = new StringConverter<Ambulance>() {
-
+        cb_ambulance.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
-            public String toString(Ambulance amb) {
-                return amb != null ? amb.getAmbID().toString() : null;
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldAmbulance, Number newAmbulance) {
+                System.out.println("STARA: " + oldAmbulance);
+                System.out.println("NOWA: " + newAmbulance);
+                model.setAmbulanceID(cb_ambulance.getItems().get((Integer) newAmbulance).getAmbID());
+                System.out.println("NowyAmbulance: " + cb_ambulance.getItems().get((Integer) newAmbulance).getAmbID());
+                model.initAllMedicine();
+                setMedicineArray();
             }
-
-            @Override
-            public Ambulance fromString(String string) {
-                return null;
-            }
-
-        };
-        cb_ambulance.setConverter(converter);
-
+        });
     }
 
     private void setMedicineArray() {
@@ -289,7 +286,33 @@ public class MedicineController implements Initializable {
     }
 
     @FXML public void btnAddAmbulance() {
+        ArrayList<String> atributes = new ArrayList<>();
+        atributes.add(tf_registration.getText());
+        atributes.add(tf_mark.getText());
+        atributes.add(tf_model.getText());
+        logger.info(atributes.toString());
 
+        if(atributes.size() != 0) { //nie wypelnione ZADNE pole.
+            for (String string : atributes) {   //sprawdzam czy wypelnione WSZYSTKIE pola
+                if (string.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Please fill all sections");
+                    return;
+                }
+            }
+            Ambulance ambulance = new Ambulance(atributes.get(0), atributes.get(1), atributes.get(2));
+            logger.info("ambulance: " + ambulance.toString());
+            //DB
+            Ambulance ambulanceWithID = model.insertAmbulanceToDB(ambulance);
+            //VIEW
+            setAmbulanceCB();
+            if (ambulanceWithID != null) {
+                cb_ambulance.getSelectionModel().select(ambulanceWithID);
+            }
+            setMedicineArray();
+        } else {
+            JOptionPane.showMessageDialog(null, "Please fill all sections");
+            return;
+        }
     }
 
     @FXML public void btnDeleteMedicine() {
@@ -297,7 +320,7 @@ public class MedicineController implements Initializable {
         final int selectedIdx = tv_medicine.getSelectionModel().getSelectedIndex();
         if (selectedIdx != -1) {
             MedicineAbs medicineToRemove = tv_medicine.getSelectionModel().getSelectedItem();
-            final int newSelectedIdx = (selectedIdx == tv_medicine.getItems().size() - 1) ? selectedIdx - 1 : selectedIdx;
+            final int newSelectedIdx = (selectedIdx == tv_medicine.getItems().size()-1) ? selectedIdx : selectedIdx;
 
             //usun z BD:
             model.deleteMedicineFromDB(medicineToRemove);
@@ -312,41 +335,11 @@ public class MedicineController implements Initializable {
         logger.info("proba buttona btnDeleteAmbulance");
         Ambulance ambulance = cb_ambulance.getSelectionModel().getSelectedItem();
         if (ambulance != null) {
-            //cb_ambulance.getSelectionModel().selectPrevious();
-
             //usun z Modelu:
             model.deleteAmbulanceFromDB(ambulance);
-            //listAmbulance = null;
-            //listAmbulance = model.getAllAmbulances();
-            //obList2 = null;
-            //obList2.remove(ambulance);
-
-            cb_ambulance.valueProperty().set(null);
-            //cb_ambulance.valueProperty().set
-
-            //listAmbulance.remove(ambulance);
-            //obList2.remove(ambulance);
-            //cb_ambulance.getItems().remove(ambulance);
-            //cb_ambulance.getItems().clear();
-            //listAmbulance = model.getAllAmbulances();
-            //cb_ambulance.setItems(obList2);
-            //cb_ambulance.getItems().remove()
-            //cb_ambulance.setItems();
-            //_word_list_lines.addAll(_page_array_string);
-            //_word_ListView.setItems(_word_list_lines);
-            //ObservableList<Ambulance> obList3 = FXCollections.observableList(listAmbulance);
-            //cb_ambulance.setItems(obList3);
-
-            //setAmbulanceCB();
-            cb_ambulance.getSelectionModel().selectFirst();
-
-            //cb_ambulance.setVisible(false);
-            //cb_ambulance.setVisible(true);
-            //setAmbulanceCB();
-            //obList2
+            setAmbulanceCB();
+            //cb_ambulance.getSelectionModel().selectFirst();
             Integer ambulanceID = cb_ambulance.getSelectionModel().getSelectedItem().getAmbID();
-            //new Proba(cb_ambulance).run();
-
             model.setAmbulanceID(ambulanceID);
             model.initAllMedicine();
 
@@ -363,6 +356,8 @@ public class MedicineController implements Initializable {
             }
         }
     }
+
+
 
     //TODO dodac ID leku i ID stanu i updatowac tylko te ID ktore sie zmienily nie wszystkie...
     @FXML public void btnUpdate() {

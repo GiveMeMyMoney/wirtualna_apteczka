@@ -21,7 +21,7 @@ public interface IFacade {
      */
     ///INSERT
     void insertMedicineToDB(MedicineAbs medicine);
-    void insertAmbulanceToDB(Ambulance ambulance);
+    Ambulance insertAmbulanceToDB(Ambulance ambulance);
 
     ///SELECT
     //List<MedicineAbs> selectAllMedicineFromDB();

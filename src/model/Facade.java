@@ -11,6 +11,7 @@ import model.core.medicine.MedicineAbs;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -85,9 +86,23 @@ public class Facade implements IFacade {    //TODO poprawic interface!
     }
 
     @Override
-    public void insertAmbulanceToDB(Ambulance ambulance) {
+    public Ambulance insertAmbulanceToDB(Ambulance ambulance) {
         if (ambulance != null) {
-            dbQuery.insertAmbulanceToDB(ambulance);
+            Integer newAmbID = dbQuery.insertAmbulanceToDB(ambulance);
+            if (newAmbID != null) {
+                ambulance.setAmbID(newAmbID);
+                ambulances.add(ambulance);
+                Collections.sort(ambulances);
+                //TODO compareTo w Ambulance.
+                setAmbulanceID(newAmbID);
+                setType(ECategory.get(1));
+                initAllMedicine();
+            } else {
+                //huston we have a problem! :D
+            }
+            return ambulance;
+        } else {
+            return null;
         }
     }
     ///endregion
@@ -124,10 +139,9 @@ public class Facade implements IFacade {    //TODO poprawic interface!
     @Override
     public void deleteAmbulanceFromDB(Ambulance ambulance) {
         if (ambulance != null) {
-            /*if (dbQuery.deleteAmbulanceFromDB(ambulance.getAmbID())) {
-
-            }*/
-            ambulances.remove(ambulance);
+            if (dbQuery.deleteAmbulanceFromDB(ambulance.getAmbID())) {
+                ambulances.remove(ambulance);
+            }
         }
     }
     ///endregion
