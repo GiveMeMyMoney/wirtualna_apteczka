@@ -1,6 +1,7 @@
 package model;
 
 import dataBase.DBquery;
+import javafx.util.Pair;
 import model.core.ambulance.Ambulance;
 import model.core.condition.Condition;
 import model.core.medicine.DI.ISettingClient;
@@ -11,6 +12,7 @@ import model.core.medicine.MedicineAbs;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -20,8 +22,11 @@ import java.util.logging.Logger;
 /**
  * 3 wzorzec: Fasada (Facade)
  */
-public class Facade implements IFacade {    //TODO poprawiæ interface!
+public class Facade implements IFacade {    //TODO poprawic interface!
     private static Logger logger = Logger.getLogger(Facade.class.getName());
+    private static final String NAME_PACKAGES = "PACKAGES";
+    private static final String NAME_SACHETS = "SACHETS";
+    private static final String NAME_PILLS = "PILLS";
     //ArrayList<Contact> contacts = new ArrayList<>();
 
     private static volatile Facade instance = null;
@@ -29,6 +34,8 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
     private ISettingClient settings = new SettingClient();
 
     List<MedicineAbs> medicines = new ArrayList<>();
+    List<Ambulance> ambulances = new ArrayList<>();
+    List<Condition> listConditionToUpdate = new ArrayList<>();
 
     public static Facade getInstance() {
         if (instance == null) {
@@ -51,12 +58,6 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
 
     }
 
-    //priavte methods:
-
-
-    //endregion
-
-
     ///DI
     @Override
     public void setAmbulanceID(Integer ambID) {
@@ -67,7 +68,6 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
     public void setType(ECategory type) {
         settings.setType(type);
     }
-
     ///endregion
 
 
@@ -75,8 +75,11 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
     @Override
     public void insertMedicineToDB(MedicineAbs medicine) {
         if (medicine != null) {
-            if (dbQuery.insertMedicineToDB(medicine, settings.getAmbulanceID())) {
-                medicines.add(medicine);    //TODO do przerobienia if(true) justDoIT!
+            Pair<Integer, Integer> pairConIdMedId = dbQuery.insertMedicineToDB(medicine, settings.getAmbulanceID());
+            if (pairConIdMedId != null) {
+                medicine.setConID(pairConIdMedId.getKey());
+                medicine.setMedID(pairConIdMedId.getValue());
+                medicines.add(medicine);
             }
         }
     }
@@ -91,34 +94,60 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
 
     ///SELECT from DB
     public void initAllMedicine() {
-        medicines = dbQuery.selectAllMedicineFromDB(settings.getAmbulanceID());
+        if (settings.getAmbulanceID() != null) {
+            medicines = dbQuery.selectAllMedicineFromDB(settings.getAmbulanceID());
+        }
+        //medicinesCopy = medicines.cl
     }
 
     @Override
-    public List<Ambulance> selectAllAmbulanceFromDB() {
-        return dbQuery.selectAllAmbulanceFromDB();
+    public void initAllAmbulance() {
+        ambulances = dbQuery.selectAllAmbulanceFromDB();
     }
 
     public List<ECategory> getAllCategories() {
         return ECategory.getAllCategories();
     }
-
     ///endregion
 
     ///DELETE from DB
-
     @Override
     public void deleteMedicineFromDB(MedicineAbs medicine) {
         if (medicine != null) {
-            if (dbQuery.deleteMedicineFromDB(medicine)) {
+            if (dbQuery.deleteMedicineFromDB(medicine.getMedID())) {
                 medicines.remove(medicine);
             }
 
         }
     }
+
+    @Override
+    public void deleteAmbulanceFromDB(Ambulance ambulance) {
+        if (ambulance != null) {
+            /*if (dbQuery.deleteAmbulanceFromDB(ambulance.getAmbID())) {
+
+            }*/
+            ambulances.remove(ambulance);
+        }
+    }
+    ///endregion
+
+    ///UPDATE to DB
+    @Override
+    public void updateConditionsToDB() {
+        dbQuery.updateMedicinesToDB(listConditionToUpdate);
+
+        //listConditionToUpdate.clear();
+    }
+
+
     ///endregion
 
     ///medicines
+    public List<Ambulance> getAllAmbulances() {
+        return ambulances;
+    }
+
     public List<MedicineAbs> getAllMedicineByType() {
         List<MedicineAbs> medicinesWithType = new ArrayList<>();
         for (MedicineAbs medicine : medicines) {
@@ -129,26 +158,27 @@ public class Facade implements IFacade {    //TODO poprawiæ interface!
         return medicinesWithType;
     }
 
-    public List<MedicineAbs> updateTempMedicinesArray(String name, Condition condition) {
-        List<MedicineAbs> medicinesWithType = new ArrayList<>();
+    public void updateTempMedicinesArray(Integer medID, int newValue, String columnName, Condition condition) {
         for (MedicineAbs medicine : medicines) {
-            if (medicine.getType().equals(settings.getType())) {
-                medicinesWithType.add(medicine);
+            if (Objects.equals(medicine.getMedID(), medID)) {
+                switch (columnName.toUpperCase()) {
+                    case NAME_PACKAGES:
+                        medicine.setPackages(newValue);
+                        break;
+                    case NAME_SACHETS:
+                        medicine.setSachets(newValue);
+                        break;
+                    case NAME_PILLS:
+                        medicine.setPills(newValue);
+                        break;
+                }
+                listConditionToUpdate.add(condition);
+                break;
             }
         }
-        return medicinesWithType;
+        //MedicineAbs medicineAbs = medicinesCopy.get(0);
     }
     ///endregion
-
-
-
-
-
-
-
-
-
-
 
 
 }

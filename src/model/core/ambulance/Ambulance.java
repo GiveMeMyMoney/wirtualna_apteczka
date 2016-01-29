@@ -4,9 +4,11 @@ package model.core.ambulance;
  * Created by Marcin on 2016-01-20.
  */
 public class Ambulance {
+    Integer ambID;
     String registration, mark, model;
 
-    public Ambulance(String registration, String model, String mark) {
+    public Ambulance(Integer ambID, String registration, String model, String mark) {
+        this.ambID = ambID;
         this.registration = registration;
         this.model = model;
         this.mark = mark;
@@ -15,6 +17,9 @@ public class Ambulance {
     //METHODs:
 
     //GETTERs:
+    public Integer getAmbID() {
+        return ambID;
+    }
     public String getRegistration() {
         return registration;
     }
@@ -26,6 +31,9 @@ public class Ambulance {
     }
 
     //SETTERs:
+    public void setAmbID(Integer ambID) {
+        this.ambID = ambID;
+    }
     public void setRegistration(String registration) {
         this.registration = registration;
     }
@@ -38,10 +46,6 @@ public class Ambulance {
 
     @Override
     public String toString() {
-        return "Ambulance{" +
-                ", registration='" + registration + '\'' +
-                ", mark='" + mark + '\'' +
-                ", model='" + model + '\'' +
-                '}';
+        return registration;
     }
 }

@@ -6,8 +6,6 @@ import model.core.medicine.DI.ISettingClient;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
 
-import java.util.List;
-
 /**
  * Created by Marcin on 2016-01-22.
  */
@@ -27,8 +25,14 @@ public interface IFacade {
 
     ///SELECT
     //List<MedicineAbs> selectAllMedicineFromDB();
-    List<Ambulance> selectAllAmbulanceFromDB();
+    void initAllAmbulance();
 
     ///DELETE
     void deleteMedicineFromDB(MedicineAbs medicine);
+    void deleteAmbulanceFromDB(Ambulance ambulance);
+
+    //UPDATE
+    void updateConditionsToDB();
+
+
 }

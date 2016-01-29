@@ -17,19 +17,19 @@ import java.util.logging.Logger;
 public class MedicineFactory {
     private static Logger logger = Logger.getLogger(MedicineFactory.class.getName());
 
-    public static MedicineAbs getMedicine(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan, Condition condition)
+    public static MedicineAbs getMedicine(Integer medID, ECategory type, String name, String dateExpiration, String dateIntroduction, int codeEan, Condition condition)
     {
         logger.info("Typ: " + type);
         if(type != null) {
             switch (type) {
                 case DRESSING:
-                    Dressing dressing = new Dressing(type, name, dateExpiration, dateIntroduction, description, codeEan, condition);
+                    Dressing dressing = new Dressing(medID, type, name, dateExpiration, dateIntroduction, codeEan, condition);
                     return dressing;
                 case PAINKILLER:
-                    Painkiller painkiller = new Painkiller(type, name, dateExpiration, dateIntroduction, description, codeEan, condition);
+                    Painkiller painkiller = new Painkiller(medID, type, name, dateExpiration, dateIntroduction, codeEan, condition);
                     return painkiller;
                 case OTHERS:
-                    Other other = new Other(type, name, dateExpiration, dateIntroduction, description, codeEan, condition);
+                    Other other = new Other(medID, type, name, dateExpiration, dateIntroduction, codeEan, condition);
                     return other;
             }
         }

@@ -2,18 +2,24 @@ package view;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 //
 
 public class Main extends Application {
-    private final static int HEIGHT = 678;
+    private final static int HEIGHT = 703;
     private final static int WIDTH = 1092;
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        FXMLLoader myLoader = new FXMLLoader(getClass().getResource("medicine.fxml"));
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("medicine.fxml"));
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
+        primaryStage.show();
+
+
+        /*FXMLLoader myLoader = new FXMLLoader(getClass().getResource("medicine.fxml"));
         Pane myPane = (Pane) myLoader.load();
         //AmbulanceController controller = (AmbulanceController) myLoader.getController();
 
@@ -27,7 +33,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Wirtualna Apteczka");
         primaryStage.setScene(scene);
-        primaryStage.show();
+        primaryStage.show();*/
     }
 
 
@@ -63,7 +69,7 @@ public class Main extends Application {
         JOptionPane.showMessageDialog(null, medicines.toString());
 
         List<Ambulance> ambulances = new ArrayList<>();
-        ambulances = model.selectAllAmbulanceFromDB();
+        ambulances = model.initAllAmbulance();
 
         System.out.println(ambulances.toString());*/
 

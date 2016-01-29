@@ -8,8 +8,10 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import model.Facade;
+import model.core.ambulance.Ambulance;
 import model.core.condition.Condition;
 import model.core.medicine.ECategory;
 import model.core.medicine.MedicineAbs;
@@ -29,6 +31,9 @@ public class MedicineController implements Initializable {
 
     List<MedicineAbs> medicines = new ArrayList<>();
 
+    ObservableList<Ambulance> obList2;
+    List<Ambulance> listAmbulance;
+
     ///FXML variable region
     @FXML TableView<MedicineAbs> tv_medicine;
     @FXML TableColumn<MedicineAbs,String> col_name;
@@ -40,8 +45,9 @@ public class MedicineController implements Initializable {
     @FXML TableColumn<MedicineAbs,Integer> col_pills;
 
     @FXML ChoiceBox<ECategory> cb_type;
+    @FXML ChoiceBox<Ambulance> cb_ambulance;
     @FXML TextField tf_name, tf_ean, tf_exp_date, tf_packages, tf_sachets, tf_pills;
-    @FXML Button btn_update, btn_cancel, btn_delete;    //TODO btn_delete zrobiæ pewne "podswietlanie" gdy jest jakaœ opcja wybrana na tableView...
+    @FXML Button btn_update, btn_cancel, btn_delete;    //TODO btn_delete zrobiï¿½ pewne "podswietlanie" gdy jest jakaï¿½ opcja wybrana na tableView...
     //endregion
 
 
@@ -52,6 +58,7 @@ public class MedicineController implements Initializable {
         btn_cancel.setVisible(false);
 
         model.setAmbulanceID(1);    //TODO do wyodrebnienia!
+        model.initAllAmbulance();
         model.initAllMedicine();    //TODO do wyodrebnienia!
 
         model.setType(ECategory.DRESSING);
@@ -62,106 +69,140 @@ public class MedicineController implements Initializable {
         /**
          * Ladowanie do ChoiceBox
          */
-        List<ECategory> listCategory = new ArrayList<>();
-        listCategory = ECategory.getAllCategories();
-        ObservableList obList = FXCollections.observableList(listCategory);
+        List<ECategory> listCategory;
+        listCategory = model.getAllCategories();
+        ObservableList<ECategory> obList = FXCollections.observableList(listCategory);
         cb_type.getItems().clear();
         cb_type.setItems(obList);
         cb_type.getSelectionModel().selectFirst();
+
+        setAmbulanceCB();
     }
 
     //private method region
     private void initTableView() {
-        tv_medicine.setEditable(true);
-        //TODO dodac ID(najlepiej uzyc ORMa) i stworzyc modyfikacje dla nazwy.
-        col_name.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        col_EAN.setCellValueFactory(new PropertyValueFactory<>("CodeEan"));
-        col_date_introduction.setCellValueFactory(new PropertyValueFactory<>("DateIntroduction"));
-        col_date_expiration.setCellValueFactory(new PropertyValueFactory<>("DateExpiration"));
-        col_packages.setCellValueFactory(new PropertyValueFactory<>("Packages"));
-        col_packages.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
-        col_packages.setOnEditCommit(event -> {
-            if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
-                int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
-                for (Node n : tv_medicine.lookupAll("TableRow")) {
-                    if (n instanceof TableRow) {
-                        TableRow row = (TableRow) n;
-                        if (row.getIndex() == rowId) {
-                            row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
-
+            tv_medicine.setEditable(true);
+            //TODO dodac ID(najlepiej uzyc ORMa) i stworzyc modyfikacje dla nazwy.
+            col_name.setCellValueFactory(new PropertyValueFactory<>("Name"));
+            col_EAN.setCellValueFactory(new PropertyValueFactory<>("CodeEan"));
+            col_date_introduction.setCellValueFactory(new PropertyValueFactory<>("DateIntroduction"));
+            col_date_expiration.setCellValueFactory(new PropertyValueFactory<>("DateExpiration"));
+            col_packages.setCellValueFactory(new PropertyValueFactory<>("Packages"));
+            col_packages.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
+            col_packages.setOnEditCommit(event -> {
+                if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
+                    int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
+                    for (Node n : tv_medicine.lookupAll("TableRow")) {
+                        if (n instanceof TableRow) {
+                            TableRow row = (TableRow) n;
+                            if (row.getIndex() == rowId) {
+                                row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
                                 //TODO do uporzadkowania i przenisienia do metody private
-                                Condition conditionToUpdate = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
-                                String name = tv_medicine.getSelectionModel().getSelectedItem().getName();
+                                String nameOfColumn = event.getTableColumn().getText();
+                                int newValue = event.getNewValue();
+                                Condition con = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
+                                Integer medID = tv_medicine.getSelectionModel().getSelectedItem().getMedID();
                                 //zmien nie na trwalo liste w Facade ale nie update do BD:
-                                model.updateTempMedicinesArray(name, conditionToUpdate);
+                                model.updateTempMedicinesArray(medID, newValue, nameOfColumn, con);
                                 //reload widoku:
                                 setMedicineArray();
                                 logger.info("Zamieniono tymczasowo");
-
-                            //row.setStyle("-fx-text-inner-color: blue;");
-                            break;
+                                break;
+                            }
                         }
                     }
+                    //btn_cancel.setVisible(true);
+                    btn_update.setVisible(true);
                 }
-
-                btn_update.setVisible(true);
-            }
-        });
-        col_sachets.setCellValueFactory(new PropertyValueFactory<>("Sachets"));
-        col_sachets.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
-        col_sachets.setOnEditCommit(event -> {
-            //col_packages.setStyle("-fx-background-color: blue");
-            if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
-                int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
-                for (Node n: tv_medicine.lookupAll("TableRow")) {
-                    if (n instanceof TableRow) {
-                        TableRow row = (TableRow) n;
-                        if (row.getIndex() == rowId) {
-                            row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
-                            //row.setStyle("-fx-text-inner-color: blue;");
+            });
+            col_sachets.setCellValueFactory(new PropertyValueFactory<>("Sachets"));
+            col_sachets.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
+            col_sachets.setOnEditCommit(event -> {
+                //col_packages.setStyle("-fx-background-color: blue");
+                if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
+                    //TODO sprawdzenie czy dodalismy integer > 0
+                    int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
+                    for (Node n : tv_medicine.lookupAll("TableRow")) {
+                        if (n instanceof TableRow) {
+                            TableRow row = (TableRow) n;
+                            if (row.getIndex() == rowId) {
+                                row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
+                                //row.setStyle("-fx-text-inner-color: blue;");
                                 //TODO do uporzadkowania i przenisienia do metody private
-                                Condition conditionToUpdate = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
-                                String name = tv_medicine.getSelectionModel().getSelectedItem().getName();
+                                String nameOfColumn = event.getTableColumn().getText();
+                                int newValue = event.getNewValue();
+                                Condition con = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
+                                Integer medID = tv_medicine.getSelectionModel().getSelectedItem().getMedID();
                                 //zmien nie na trwalo liste w Facade ale nie update do BD:
-                                model.updateTempMedicinesArray(name, conditionToUpdate);
+                                model.updateTempMedicinesArray(medID, newValue, nameOfColumn, con);
                                 //reload widoku:
                                 setMedicineArray();
                                 logger.info("Zamieniono tymczasowo");
-                            break;
+                                break;
+                            }
                         }
                     }
+                    //btn_cancel.setVisible(true);
+                    btn_update.setVisible(true);
                 }
-
-                btn_update.setVisible(true);
-            }
-        });
-        col_pills.setCellValueFactory(new PropertyValueFactory<>("Pills"));
-        col_pills.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
-        col_pills.setOnEditCommit(event -> {
-            if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
-                int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
-                for (Node n : tv_medicine.lookupAll("TableRow")) {
-                    if (n instanceof TableRow) {
-                        TableRow row = (TableRow) n;
-                        if (row.getIndex() == rowId) {
-                            row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
-                            //row.setStyle("-fx-text-inner-color: blue;");
+            });
+            col_pills.setCellValueFactory(new PropertyValueFactory<>("Pills"));
+            col_pills.setCellFactory(TextFieldTableCell.<MedicineAbs, Integer>forTableColumn(new IntegerStringConverter()));
+            col_pills.setOnEditCommit(event -> {
+                if (!Objects.equals(event.getOldValue(), event.getNewValue())) {
+                    int rowId = event.getTablePosition().getRow();  //pobranie ID wiersza ktory modifikujemy
+                    for (Node n : tv_medicine.lookupAll("TableRow")) {
+                        if (n instanceof TableRow) {
+                            TableRow row = (TableRow) n;
+                            if (row.getIndex() == rowId) {
+                                row.setStyle("-fx-background-color: blue; ");    //TODO jak zmienic kolor tylko tekstu do znalezienia
+                                //row.setStyle("-fx-text-inner-color: blue;");
                                 //TODO do uporzadkowania i przenisienia do metody private
-                                Condition conditionToUpdate = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
-                                String name = tv_medicine.getSelectionModel().getSelectedItem().getName();
+                                String nameOfColumn = event.getTableColumn().getText();
+                                int newValue = event.getNewValue();
+                                Condition con = tv_medicine.getSelectionModel().getSelectedItem().getCondition();
+                                Integer medID = tv_medicine.getSelectionModel().getSelectedItem().getMedID();
                                 //zmien nie na trwalo liste w Facade ale nie update do BD:
-                                model.updateTempMedicinesArray(name, conditionToUpdate);
+                                model.updateTempMedicinesArray(medID, newValue, nameOfColumn, con);
                                 //reload widoku:
                                 setMedicineArray();
                                 logger.info("Zamieniono tymczasowo");
-                            break;
+                                break;
+                            }
+
                         }
                     }
+                    //btn_cancel.setVisible(true);
+                    btn_update.setVisible(true);
                 }
+            });
+    }
 
-                btn_update.setVisible(true);
+    private void setAmbulanceCB() {
+        listAmbulance = model.getAllAmbulances();
+        if (listAmbulance != null && listAmbulance.size() > 0) {
+            obList2 = FXCollections.observableList(listAmbulance);
+            //cb_ambulance.getItems().clear();
+            cb_ambulance.setItems(obList2);
+            cb_ambulance.getSelectionModel().selectFirst();
+            cb_ambulance.setVisible(false);
+            cb_ambulance.setVisible(true);
+        }
+        StringConverter<Ambulance> converter = new StringConverter<Ambulance>() {
+
+            @Override
+            public String toString(Ambulance amb) {
+                return amb != null ? amb.getAmbID().toString() : null;
             }
-        });
+
+            @Override
+            public Ambulance fromString(String string) {
+                return null;
+            }
+
+        };
+        cb_ambulance.setConverter(converter);
+
     }
 
     private void setMedicineArray() {
@@ -186,22 +227,22 @@ public class MedicineController implements Initializable {
 
 
     //FXML method region
-    public void btnShowDressing() {
+    @FXML public void btnShowDressing() {
         model.setType(ECategory.DRESSING);
         setMedicineArray();
     }
 
-    public void btnShowPainkiller() {
+    @FXML public void btnShowPainkiller() {
         model.setType(ECategory.PAINKILLER);
         setMedicineArray();
     }
 
-    public void btnShowOthers() {
+    @FXML public void btnShowOthers() {
         model.setType(ECategory.OTHERS);
         setMedicineArray();
     }
 
-    public void btnAddMedicine() {
+    @FXML public void btnAddMedicine() {
         ArrayList<String> atributes = new ArrayList<>();
         if(validateIntegers(Arrays.asList(tf_packages.getText(), tf_sachets.getText(), tf_pills.getText()))) {
             JOptionPane.showMessageDialog(null, "Please set an Integer into column \"Packages\", \"Sachets\" and \"Pills\"");
@@ -247,8 +288,12 @@ public class MedicineController implements Initializable {
 
     }
 
-    public void btnDeleteMedicine() {
-        logger.info("proba buttona delete");
+    @FXML public void btnAddAmbulance() {
+
+    }
+
+    @FXML public void btnDeleteMedicine() {
+        logger.info("proba buttona btnDeleteMedicine");
         final int selectedIdx = tv_medicine.getSelectionModel().getSelectedIndex();
         if (selectedIdx != -1) {
             MedicineAbs medicineToRemove = tv_medicine.getSelectionModel().getSelectedItem();
@@ -263,18 +308,78 @@ public class MedicineController implements Initializable {
         }
     }
 
+    @FXML public void btnDeleteAmbulance() {
+        logger.info("proba buttona btnDeleteAmbulance");
+        Ambulance ambulance = cb_ambulance.getSelectionModel().getSelectedItem();
+        if (ambulance != null) {
+            //cb_ambulance.getSelectionModel().selectPrevious();
 
-    //TODO dodac ID leku i ID stanu i updatowac tylko te ID ktore sie zmienily nie wszystkie...
-    public void btnUpdate() {
-        model.updateMedicinesToDB();
-        btn_update.setVisible(false);
-        btn_cancel.setVisible(false);
+            //usun z Modelu:
+            model.deleteAmbulanceFromDB(ambulance);
+            //listAmbulance = null;
+            //listAmbulance = model.getAllAmbulances();
+            //obList2 = null;
+            //obList2.remove(ambulance);
+
+            cb_ambulance.valueProperty().set(null);
+            //cb_ambulance.valueProperty().set
+
+            //listAmbulance.remove(ambulance);
+            //obList2.remove(ambulance);
+            //cb_ambulance.getItems().remove(ambulance);
+            //cb_ambulance.getItems().clear();
+            //listAmbulance = model.getAllAmbulances();
+            //cb_ambulance.setItems(obList2);
+            //cb_ambulance.getItems().remove()
+            //cb_ambulance.setItems();
+            //_word_list_lines.addAll(_page_array_string);
+            //_word_ListView.setItems(_word_list_lines);
+            //ObservableList<Ambulance> obList3 = FXCollections.observableList(listAmbulance);
+            //cb_ambulance.setItems(obList3);
+
+            //setAmbulanceCB();
+            cb_ambulance.getSelectionModel().selectFirst();
+
+            //cb_ambulance.setVisible(false);
+            //cb_ambulance.setVisible(true);
+            //setAmbulanceCB();
+            //obList2
+            Integer ambulanceID = cb_ambulance.getSelectionModel().getSelectedItem().getAmbID();
+            //new Proba(cb_ambulance).run();
+
+            model.setAmbulanceID(ambulanceID);
+            model.initAllMedicine();
+
+            //reload widoku:
+            setMedicineArray();
+        }
     }
 
-    public void btnCancel() {
-        model.initAllMedicine();    //w przyszlosci stworzyc zwykla kopie
+    private void cleanBackgroundTableView() {
+        for (Node n : tv_medicine.lookupAll("TableRow")) {
+            if (n instanceof TableRow) {
+                TableRow row = (TableRow) n;
+                row.setStyle("-fx-background-color: white; ");
+            }
+        }
+    }
+
+    //TODO dodac ID leku i ID stanu i updatowac tylko te ID ktore sie zmienily nie wszystkie...
+    @FXML public void btnUpdate() {
+        model.updateConditionsToDB();   //to jest chyba opcjonalne
         btn_update.setVisible(false);
         btn_cancel.setVisible(false);
+        setMedicineArray();
+        //cleanBackgroundTableView();
+    }
+
+    @FXML public void btnCancel() {
+        model.initAllMedicine();
+        //initTableView();
+        btn_update.setVisible(false);
+        btn_cancel.setVisible(false);
+        setMedicineArray();
+        //cleanBackgroundTableView();
     }
     //endregion
 

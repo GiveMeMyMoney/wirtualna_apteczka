@@ -7,16 +7,17 @@ import model.core.condition.Condition;
  */
 public abstract class MedicineAbs {
     ECategory type = null;  //kategoria leku
-    String name, dateExpiration, dateIntroduction, description;
+    String name, dateExpiration, dateIntroduction;
     int codeEan;
+    Integer medID;
     Condition condition = null;
 
-    public MedicineAbs(ECategory type, String name, String dateExpiration, String dateIntroduction, String description, int codeEan, Condition condition) {
+    public MedicineAbs(Integer medID, ECategory type, String name, String dateIntroduction, String dateExpiration, int codeEan, Condition condition) {
+        this.medID = medID;
         this.type = type;
         this.name = name;
-        this.dateExpiration = dateExpiration;
         this.dateIntroduction = dateIntroduction;
-        this.description = description;
+        this.dateExpiration = dateExpiration;
         this.codeEan = codeEan;
         this.condition = condition;
     }
@@ -24,8 +25,8 @@ public abstract class MedicineAbs {
     public MedicineAbs(ECategory type, String name, String dateIntroduction, String dateExpiration, int codeEan, Condition condition) {
         this.type = type;
         this.name = name;
-        this.dateIntroduction = dateIntroduction;
         this.dateExpiration = dateExpiration;
+        this.dateIntroduction = dateIntroduction;
         this.codeEan = codeEan;
         this.condition = condition;
     }
@@ -33,6 +34,9 @@ public abstract class MedicineAbs {
     //METHODs:
 
     //GETTERs:
+    public Integer getMedID() {
+        return medID;
+    }
     public ECategory getType() {
         return type;
     }
@@ -45,13 +49,14 @@ public abstract class MedicineAbs {
     public String getDateIntroduction() {
         return dateIntroduction;
     }
-    public String getDescription() {
-        return description;
-    }
     public int getCodeEan() {
         return codeEan;
     }
+
     //Condition:
+    public Integer getConID() {
+        return condition.getConID();
+    }
     public Condition getCondition() {
         return condition;
     }
@@ -68,7 +73,11 @@ public abstract class MedicineAbs {
         return condition.getPills();
     }
 
+
     //SETTERs:
+    public void setMedID(Integer medID) {
+        this.medID = medID;
+    }
     public void setType(ECategory type) {
         this.type = type;
     }
@@ -81,13 +90,17 @@ public abstract class MedicineAbs {
     public void setDateIntroduction(String dateIntroduction) {
         this.dateIntroduction = dateIntroduction;
     }
-    public void setDescription(String description) {
-        this.description = description;
-    }
     public void setCodeEan(int codeEan) {
         this.codeEan = codeEan;
     }
     //Condition:
+    public void setConID(Integer conID) {
+        if (conID != null) {
+            condition.setConID(conID);
+        } else {
+            throw new NullPointerException("ID dla tego condition: " + condition.toString() + "jest null");
+        }
+    }
     public void setCondition(Condition condition) {
         this.condition = condition;
     }
@@ -104,15 +117,13 @@ public abstract class MedicineAbs {
     @Override
     public String toString() {
         return "MedicineAbs{" +
+                "ID=" + medID +
                 "type=" + type +
                 ", name='" + name + '\'' +
                 ", dateExpiration='" + dateExpiration + '\'' +
                 ", dateIntroduction='" + dateIntroduction + '\'' +
-                ", description='" + description + '\'' +
                 ", codeEan=" + codeEan +
-                ", condition(packages)=" + getPackages() +
-                ", condition(sachets)=" + getSachets() +
-                ", condition(pills)=" + getPills() +
+                ", condition=" + condition.toString() +
                 '}';
     }
 }

@@ -35,7 +35,6 @@
       <column name="lek_kod_ean" sqlType="INTEGER (10)" precision="2000000000" scale="10" nullable="false" jdbcType="4"/>
       <column name="lek_data_waznosci" sqlType="DATE" precision="2000000000" scale="10" nullable="false" jdbcType="12"/>
       <column name="lek_data_wprow" sqlType="DATE" precision="2000000000" scale="10" nullable="true" jdbcType="12" def="J0NVUlJFTlRfVElNRVNUQU1QJw=="/>
-      <column name="lek_opis" sqlType="TEXT" precision="2000000000" scale="10" nullable="true" jdbcType="12"/>
       <primary-key columns="lek_id"/>
       <foreign-key name="#FAKE_lek_1" columns="lek_kt_id" ref-table="kategoria_leku" ref-schema="" ref-catalog="" ref-columns="kl_id" update-rule="0" delete-rule="0" deferrability="1"/>
       <exported-key name="#FAKE_karetka_lek_2" table="karetka_lek" schema="" catalog="" columns="kl_lek_id"/>

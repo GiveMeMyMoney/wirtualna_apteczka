@@ -1,5 +1,6 @@
 package dataBase;
 
+import javafx.util.Pair;
 import model.core.ambulance.Ambulance;
 import model.core.condition.Condition;
 import model.core.medicine.ECategory;
@@ -70,78 +71,88 @@ public class DBquery implements IDBquery {
 
     /**
      * metoda sluzaca do ladowania Medicine do BD.
-     * @param medicine - lek
+     * @param medicine - lek ze stanem
      * @see MedicineAbs
      */
     @Override
-    public boolean insertMedicineToDB(MedicineAbs medicine, Integer ambulanceID) {
+    public Pair<Integer, Integer> insertMedicineToDB(MedicineAbs medicine, Integer ambulanceID) {
         logger.info("insertMedicineToDB: " + medicine.toString());
         //TODO do zmiany na tranzakcje bo ta co jest nie dziala dodaje do stan
         int i=0;
+        Integer conID = null, medID = null;
         ResultSet rsConditionID = null, rsMedicineID = null;
         PreparedStatement insertMedicine = null, insertCondition = null, insertAmbulanceMedicineCondition = null;
         try {
-            connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-            connection.setAutoCommit(false);
-            //insert Condition
-            insertCondition = connection.prepareStatement("insert into stan values (null, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+            //connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            connection.setAutoCommit(true);
+            //insert Medicine
+            //TODO na potrzeby dzialania najpierw zrobic LEK pozniej STAN
+            insertMedicine = connection.prepareStatement("insert into lek values (null, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
             //----//
-            insertCondition.setInt(++i, medicine.getCondition().getPackages());
-            insertCondition.setInt(++i, medicine.getCondition().getSachets());
-            insertCondition.setInt(++i, medicine.getCondition().getPills());
+            int idCategory = medicine.getType().getId();
+            i = 0;
+            insertMedicine.setInt(++i, idCategory);
+            insertMedicine.setString(++i, medicine.getName());
+            insertMedicine.setInt(++i, medicine.getCodeEan());
+            insertMedicine.setString(++i, medicine.getDateExpiration());
+            insertMedicine.setString(++i, medicine.getDateIntroduction());
             //----//
-            insertCondition.execute();
+            insertMedicine.execute();
 
-            rsConditionID = insertCondition.getGeneratedKeys();
-            if (rsConditionID.next()) {
-                //insert Medicine
-                insertMedicine = connection.prepareStatement("insert into lek values (null, ?, ?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+            rsMedicineID = insertMedicine.getGeneratedKeys();
+            medID = rsMedicineID.getInt(1);
+
+            if (rsMedicineID.next()) {
+                //insert Condition
+                insertCondition = connection.prepareStatement("insert into stan values (null, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
                 //----//
-                int idCategory = medicine.getType().getId();
                 i = 0;
-                insertMedicine.setInt(++i, idCategory);
-                insertMedicine.setString(++i, medicine.getName());
-                insertMedicine.setInt(++i, medicine.getCodeEan());
-                insertMedicine.setString(++i, medicine.getDateExpiration());
-                insertMedicine.setString(++i, medicine.getDateIntroduction());
-                insertMedicine.setString(++i, medicine.getDescription());
+                insertCondition.setInt(++i, medicine.getCondition().getPackages());
+                insertCondition.setInt(++i, medicine.getCondition().getSachets());
+                insertCondition.setInt(++i, medicine.getCondition().getPills());
                 //----//
-                insertMedicine.execute();
+                insertCondition.execute();
 
-                rsMedicineID = insertMedicine.getGeneratedKeys();
-                if (rsMedicineID.next()) {
+                rsConditionID = insertCondition.getGeneratedKeys();
+                conID = rsConditionID.getInt(1);
+
+                if (rsConditionID.next()) {
                     //insert
                     insertAmbulanceMedicineCondition = connection.prepareStatement("insert into karetka_lek values (null, ?, ?, ?);");
                     //----//
                     i = 0;
                     insertAmbulanceMedicineCondition.setInt(++i, ambulanceID);
-                    insertAmbulanceMedicineCondition.setInt(++i, rsMedicineID.getInt(1));
-                    insertAmbulanceMedicineCondition.setInt(++i, rsConditionID.getInt(1));
+                    insertAmbulanceMedicineCondition.setInt(++i, medID);
+                    insertAmbulanceMedicineCondition.setInt(++i, conID);
                     //----//
 
                     insertAmbulanceMedicineCondition.execute();
                 }
-                connection.commit();
+                //connection.commit();
             }
-            return true;
+            if (conID != null && medID != null) {
+                return new Pair<>(conID, medID);
+            } else {
+                throw new SQLException("ConID: " + conID + "medID: " + medID);
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e);
             e.printStackTrace();
-            try {
+            /*try {
                 logger.info("Cofniecie tranzakcji w insertMedicineToDB()");
                 connection.rollback();
             } catch (SQLException e1) {
                 e1.printStackTrace();
-            }
-            return false;
+            }*/
+            return null;
         }
         //TODO TRANZAKCJA
         finally {
-            try {
+            /*try {
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
-            }
+            }*/
             /*if (rsMedicineID != null) {
                 try {
                     rsMedicineID.close();
@@ -187,14 +198,14 @@ public class DBquery implements IDBquery {
                 selectCondition = connection.prepareStatement("SELECT * FROM stan WHERE stan_id = ?");
                 selectCondition.setInt(1, resultAmbulanceMedicine.getInt("kl_stan_id"));
                 resultCondition = selectCondition.executeQuery();
-                Condition condition = new Condition(resultCondition.getInt("stan_opak"), resultCondition.getInt("stan_saszetki"), resultCondition.getInt("stan_tabletki"));
+                Condition condition = new Condition(resultCondition.getInt("stan_id"), resultCondition.getInt("stan_opak"), resultCondition.getInt("stan_saszetki"), resultCondition.getInt("stan_tabletki"));
 
                 //Medicine
                 selectMedicine = connection.prepareStatement("SELECT * FROM lek WHERE lek_id = ?");
                 selectMedicine.setInt(1, resultAmbulanceMedicine.getInt("kl_lek_id"));
                 resultMedicine = selectMedicine.executeQuery();
-                MedicineAbs medicine = MedicineFactory.getMedicine(ECategory.get(resultMedicine.getInt("lek_kt_id")), resultMedicine.getString("lek_nazwa"), resultMedicine.getString("lek_data_waznosci"),
-                        resultMedicine.getString("lek_data_wprow"), resultMedicine.getString("lek_opis"), resultMedicine.getInt("lek_kod_ean"), condition);
+                MedicineAbs medicine = MedicineFactory.getMedicine(resultMedicine.getInt("lek_id"), ECategory.get(resultMedicine.getInt("lek_kt_id")), resultMedicine.getString("lek_nazwa"), resultMedicine.getString("lek_data_waznosci"),
+                        resultMedicine.getString("lek_data_wprow"), resultMedicine.getInt("lek_kod_ean"), condition);
                 if (medicine != null) {
                     logger.info("Medicine: " + medicine.toString());
                     medicineByType.add(medicine);
@@ -212,7 +223,7 @@ public class DBquery implements IDBquery {
 
     @Override
     public List<Ambulance> selectAllAmbulanceFromDB() {
-        logger.info("selectAllAmbulanceFromDB()");
+        logger.info("initAllAmbulance()");
         ResultSet result = null;
         List<Ambulance> ambulances = new ArrayList<>();
         try {
@@ -220,12 +231,12 @@ public class DBquery implements IDBquery {
             result = prepStmt.executeQuery();
             //pozniej za pomoca Factory tworze konkretny typ(nie musze wiedziec jaki) pojazdu i dopisuje do ArrayListy
             while (result.next()) {
-                Ambulance ambulance = new Ambulance(result.getString("kar_rejestracja"), result.getString("kar_marka"), result.getString("kar_model"));
+                Ambulance ambulance = new Ambulance(result.getInt("kar_id"), result.getString("kar_rejestracja"), result.getString("kar_marka"), result.getString("kar_model"));
                 if (ambulance != null) {
-                    logger.info("Vehicle: " + ambulance.toString());
+                    logger.info("Ambulance: " + ambulance.toString());
                     ambulances.add(ambulance);
                 } else {
-                    logger.info("Err Vehicle = null");
+                    logger.info("Err Ambulance = null");
                 }
             }
             return ambulances;
@@ -239,36 +250,27 @@ public class DBquery implements IDBquery {
     ///endregion
 
     ///DELETE methods:
-
     @Override
-    public boolean deleteMedicineFromDB(MedicineAbs medicine) {
-        int i=0;
-        ResultSet rsAmbulanceMedicineConditionID = null, rsMedicineID = null;
-        PreparedStatement selectMedicineID = null, selectAmbulanceMedicineConditionID = null, deleteCondition = null, deleteMedicine = null,
+    public boolean deleteMedicineFromDB(Integer medicineID) {
+        ResultSet rsAmbulanceMedicineConditionID = null;
+        PreparedStatement  selectAmbulanceMedicineConditionID = null, deleteCondition = null, deleteMedicine = null,
                 deleteAmbulanceMedicineConditionID = null;  //TODO skrocic nazwy.
         try {
-            selectMedicineID = connection.prepareStatement("SELECT lek_id FROM lek WHERE lek_nazwa = ?");
-            selectMedicineID.setString(1, medicine.getName());
-            rsMedicineID = selectMedicineID.executeQuery();
+            selectAmbulanceMedicineConditionID = connection.prepareStatement("SELECT kl_id, kl_stan_id FROM karetka_lek WHERE kl_lek_id = ?");
+            selectAmbulanceMedicineConditionID.setInt(1, medicineID);
+            rsAmbulanceMedicineConditionID = selectAmbulanceMedicineConditionID.executeQuery();
+            if (rsAmbulanceMedicineConditionID.next()) {
+                deleteMedicine = connection.prepareStatement("DELETE FROM lek WHERE lek_id = ?");
+                deleteMedicine.setInt(1, medicineID);
+                deleteMedicine.execute();
 
-            if (rsMedicineID.next()) {
-                Integer medicineID = rsMedicineID.getInt("lek_id");
-                selectAmbulanceMedicineConditionID = connection.prepareStatement("SELECT kl_id, kl_stan_id FROM karetka_lek WHERE kl_lek_id = ?");
-                selectAmbulanceMedicineConditionID.setInt(1, medicineID);
-                rsAmbulanceMedicineConditionID = selectAmbulanceMedicineConditionID.executeQuery();
-                if (rsAmbulanceMedicineConditionID.next()) {
-                    deleteMedicine = connection.prepareStatement("DELETE FROM lek WHERE lek_id = ?");
-                    deleteMedicine.setInt(1, medicineID);
-                    deleteMedicine.execute();
+                deleteCondition = connection.prepareStatement("DELETE FROM stan WHERE stan_id = ?");
+                deleteCondition.setInt(1, rsAmbulanceMedicineConditionID.getInt("kl_stan_id"));
+                deleteCondition.execute();
 
-                    deleteCondition = connection.prepareStatement("DELETE FROM stan WHERE stan_id = ?");
-                    deleteCondition.setInt(1, rsAmbulanceMedicineConditionID.getInt("kl_stan_id"));
-                    deleteCondition.execute();
-
-                    deleteAmbulanceMedicineConditionID = connection.prepareStatement("DELETE FROM karetka_lek WHERE kl_id = ?");
-                    deleteAmbulanceMedicineConditionID.setInt(1, rsAmbulanceMedicineConditionID.getInt("kl_id"));
-                    deleteAmbulanceMedicineConditionID.execute();
-                }
+                deleteAmbulanceMedicineConditionID = connection.prepareStatement("DELETE FROM karetka_lek WHERE kl_id = ?");
+                deleteAmbulanceMedicineConditionID.setInt(1, rsAmbulanceMedicineConditionID.getInt("kl_id"));
+                deleteAmbulanceMedicineConditionID.execute();
             }
             return true;
         } catch (SQLException e) {
@@ -276,6 +278,53 @@ public class DBquery implements IDBquery {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public boolean deleteAmbulanceFromDB(Integer ambID) {
+        PreparedStatement deleteAmbulance = null, deleteAmbulanceMedicineConditionID = null;
+        try {
+            deleteAmbulanceMedicineConditionID = connection.prepareStatement("DELETE FROM karetka_lek WHERE kl_kar_id = ?");
+            deleteAmbulanceMedicineConditionID.setInt(1, ambID);
+            deleteAmbulanceMedicineConditionID.execute();
+
+            deleteAmbulance = connection.prepareStatement("DELETE FROM karetka WHERE kar_id = ?");
+            deleteAmbulance.setInt(1, ambID);
+            deleteAmbulance.execute();
+
+            return true;
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    ///endregion
+
+    ///DELETE methods:
+
+    @Override
+    public void updateMedicinesToDB(List<Condition> conditionsToUpdate) {
+        //TODO albo stworzyc do tego widok(bo te TRANZAKCJE SA ZUE!)
+        PreparedStatement updateCondition = null;
+        try {
+            for (Condition condition : conditionsToUpdate) {
+                updateCondition = connection.prepareStatement("UPDATE stan SET stan_opak = ?, stan_saszetki = ?, stan_tabletki = ? WHERE stan_id = ?");
+                //----//
+                int i = 0;
+                updateCondition.setInt(++i, condition.getPackages());
+                updateCondition.setInt(++i, condition.getSachets());
+                updateCondition.setInt(++i, condition.getPills());
+                updateCondition.setInt(++i, condition.getConID());
+                //----//
+                updateCondition.execute();
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e);
+            e.printStackTrace();
+        }
+
     }
 
 
