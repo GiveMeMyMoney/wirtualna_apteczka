@@ -14,26 +14,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("medicine.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Remonty i Obs³uga Techniczna");
         primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
         primaryStage.show();
-
-
-        /*FXMLLoader myLoader = new FXMLLoader(getClass().getResource("medicine.fxml"));
-        Pane myPane = (Pane) myLoader.load();
-        //AmbulanceController controller = (AmbulanceController) myLoader.getController();
-
-        //controller.setPrevStage(primaryStage);
-
-        //Parent rootAmbulance = FXMLLoader.load(getClass().getResource("ambulance.fxml"));
-        //Parent rootMedicine = FXMLLoader.load(getClass().getResource("medicine.fxml"));
-
-        Scene scene = new Scene(myPane, WIDTH, HEIGHT);
-        //Scene scene2 = new Scene(rootMedicine, WIDTH, HEIGHT);
-
-        primaryStage.setTitle("Wirtualna Apteczka");
-        primaryStage.setScene(scene);
-        primaryStage.show();*/
     }
 
 
