@@ -14,7 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("medicine.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("JunSOFT Company");
         primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
         primaryStage.show();
 

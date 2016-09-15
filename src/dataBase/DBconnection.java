@@ -1,11 +1,10 @@
 package dataBase;
 
-import model.core.medicine.ECategory;
-import model.core.medicine.MedicineAbs;
-
 import javax.swing.*;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 /**
@@ -38,7 +37,7 @@ public class DBconnection {
         return conn;
     }
 
-    public DBconnection() {
+    private DBconnection() {
         try
         {
             logger.info("DBconnection construct");
